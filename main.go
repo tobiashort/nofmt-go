@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -12,7 +13,7 @@ import (
 )
 
 type Args struct {
-	File string `clap:"positional,mandatory,description='the file to format'"`
+	File string `clap:"positional,description='The file to format. Reads from Stdin if not specified.'"`
 }
 
 func main() {
@@ -23,8 +24,14 @@ func main() {
 	var replacement []string
 	var enabled bool
 
-	file := must.Do2(os.Open(args.File))
-	scanner := bufio.NewScanner(file)
+	var src string
+	if args.File != "" {
+		src = string(must.Do2(os.ReadFile(args.File)))
+	} else {
+		src = string(must.Do2(io.ReadAll(os.Stdin)))
+	}
+
+	scanner := bufio.NewScanner(strings.NewReader(src))
 	for scanner.Scan() {
 		line := scanner.Text()
 		if strings.TrimSpace(line) == "//nofmt:enable" {
@@ -42,12 +49,13 @@ func main() {
 	replacements = append(replacements, replacement)
 	replacement = make([]string, 0)
 
-	cmd := exec.Command("goimports", args.File)
-	out := string(must.Do2(cmd.CombinedOutput()))
+	cmd := exec.Command("goimports")
+	cmd.Stdin = strings.NewReader(src)
+	goimportsOut := string(must.Do2(cmd.CombinedOutput()))
 
 	enabled = false
 	replacementIndex := 0
-	scanner = bufio.NewScanner(strings.NewReader(out))
+	scanner = bufio.NewScanner(strings.NewReader(goimportsOut))
 	for scanner.Scan() {
 		line := scanner.Text()
 		if strings.TrimSpace(line) == "//nofmt:enable" {
