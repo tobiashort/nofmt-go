@@ -10,14 +10,18 @@ import (
 
 	"github.com/tobiashort/clap-go"
 	"github.com/tobiashort/utils-go/must"
+	strings2 "github.com/tobiashort/utils-go/strings"
 )
 
 type Args struct {
-	File string `clap:"positional,description='The file to format. Reads from Stdin if not specified.'"`
+	File string `clap:"positional,desc='The file to format. Reads from Stdin if not specified.'"`
 }
 
 func main() {
 	args := Args{}
+	clap.Example(strings2.Dedent(`//nofmt:enable
+                                 |[custom formatted code]
+                                 |//nofmt:disable`))
 	clap.Parse(&args)
 
 	var replacements [][]string
