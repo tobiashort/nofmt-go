@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 
@@ -31,6 +32,7 @@ func readme() {
 		clog.Error(string(out))
 		os.Exit(1)
 	} else {
-		os.WriteFile("README.md", out, 0644)
+		codeBlock := fmt.Sprintf("```\n%s\n```\n", string(out))
+		os.WriteFile("README.md", []byte(codeBlock), 0644)
 	}
 }

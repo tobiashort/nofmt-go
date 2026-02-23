@@ -1,3 +1,4 @@
+```
 Usage:
   nofmt [OPTIONS] [File]
 
@@ -11,3 +12,5 @@ Example:
   //nofmt:enable
   [custom formatted code]
   //nofmt:disable
+
+```
